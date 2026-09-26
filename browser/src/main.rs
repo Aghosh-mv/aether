@@ -29,6 +29,10 @@ use winit::{
 };
 
 fn fetch(url: &str) -> Result<String, String> {
+    let parsed = url::Url::parse(url)?;
+    if parsed.scheme == "file" {
+        return Err("file navigation is not implemented in this network path".into());
+    }
     ureq::get(url)
         .call()
         .map_err(|e| e.to_string())?
