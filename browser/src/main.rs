@@ -11,6 +11,7 @@ mod passwords;
 mod permissions;
 mod preferences;
 mod profiles;
+mod session;
 mod storage;
 mod tabs;
 use std::env;
