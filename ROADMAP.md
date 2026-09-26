@@ -31,6 +31,7 @@
 - [x] Safe session restore model excluding private windows
 - [x] Basic PWA manifest parsing and isolated installed-web-app record
 - [x] Extension manifest/permission metadata and enable/disable manager contract
+- [x] Structured URL parsing with scheme, origin, port, path, and query validation
 - [x] AetherJS lexer and arithmetic-expression evaluator seed
 - [x] AetherJS unary operators and numeric comparisons
 - [x] AetherJS let declarations and variable lookup

@@ -18,6 +18,7 @@ mod pwa;
 mod session;
 mod storage;
 mod tabs;
+mod url;
 use std::env;
 use std::num::NonZeroU32;
 use winit::{

@@ -2,6 +2,8 @@
 
 Aether is an independent browser-engine project written primarily in Rust. It is not Chromium, Electron, WebKit, Gecko, or a wrapper around another browser.
 
+Swift is an optional future platform-shell/interoperability layer; see [ADR 0002](docs/adr/0002-swift-cross-platform-boundary.md). The current engine remains Rust so its core is not coupled to Apple-only frameworks or notarization.
+
 ## License
 
 Aether is released under the custom [Aether Reciprocal Source License](LICENSE). It requires modified source portions to be shared with `aghoshpratheesh@gmail.com`, while allowing modified works to remain private. This is a source-available custom license, not an OSI-approved Open Source license.
