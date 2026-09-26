@@ -10,6 +10,7 @@
 - [x] First CSS declarations and style-aware block layout
 - [x] DOM tag, class, and ID queries
 - [x] AetherJS lexer and arithmetic-expression evaluator seed
+- [x] AetherJS unary operators and numeric comparisons
 
 Evidence: `docs/evidence/foundation.md`.
 

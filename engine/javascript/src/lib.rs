@@ -17,6 +17,10 @@ enum Token {
     Minus,
     Star,
     Slash,
+    Bang,
+    Less,
+    Greater,
+    EqualEqual,
     LParen,
     RParen,
     End,
@@ -69,6 +73,22 @@ fn lex(source: &str) -> Result<Vec<Token>, String> {
             '/' => {
                 tokens.push(Token::Slash);
                 i += 1
+            }
+            '!' => {
+                tokens.push(Token::Bang);
+                i += 1
+            }
+            '<' => {
+                tokens.push(Token::Less);
+                i += 1
+            }
+            '>' => {
+                tokens.push(Token::Greater);
+                i += 1
+            }
+            '=' if chars.get(i + 1) == Some(&'=') => {
+                tokens.push(Token::EqualEqual);
+                i += 2
             }
             '(' => {
                 tokens.push(Token::LParen);
@@ -135,6 +155,18 @@ impl Parser {
                     self.take();
                     number_op(value, self.term()?, |a, b| a - b)?
                 }
+                Token::Less => {
+                    self.take();
+                    compare(value, self.term()?, |a, b| a < b)?
+                }
+                Token::Greater => {
+                    self.take();
+                    compare(value, self.term()?, |a, b| a > b)?
+                }
+                Token::EqualEqual => {
+                    self.take();
+                    Value::Boolean(value == self.term()?)
+                }
                 _ => break,
             };
         }
@@ -159,6 +191,8 @@ impl Parser {
     }
     fn primary(&mut self) -> Result<Value, String> {
         match self.take() {
+            Token::Minus => number_op(Value::Number(0.0), self.primary()?, |a, b| a - b),
+            Token::Bang => Ok(Value::Boolean(!truthy(&self.primary()?))),
             Token::Number(n) => Ok(Value::Number(n)),
             Token::String(s) => Ok(Value::String(s)),
             Token::True => Ok(Value::Boolean(true)),
@@ -192,6 +226,24 @@ fn add(left: Value, right: Value) -> Result<Value, String> {
         _ => Err("+ requires two numbers or two strings".into()),
     }
 }
+fn compare(
+    left: Value,
+    right: Value,
+    operation: impl FnOnce(f64, f64) -> bool,
+) -> Result<Value, String> {
+    match (left, right) {
+        (Value::Number(a), Value::Number(b)) => Ok(Value::Boolean(operation(a, b))),
+        _ => Err("comparison requires numbers".into()),
+    }
+}
+fn truthy(value: &Value) -> bool {
+    match value {
+        Value::Boolean(value) => *value,
+        Value::Null => false,
+        Value::Number(value) => *value != 0.0,
+        Value::String(value) => !value.is_empty(),
+    }
+}
 
 #[cfg(test)]
 mod tests {
@@ -210,5 +262,11 @@ mod tests {
     fn rejects_invalid_programs() {
         assert!(evaluate("2 + nope").is_err());
         assert!(evaluate("(2 + 3").is_err());
+    }
+    #[test]
+    fn evaluates_unary_and_comparison_operators() {
+        assert_eq!(evaluate("-4 + 5"), Ok(Value::Number(1.0)));
+        assert_eq!(evaluate("3 < 4"), Ok(Value::Boolean(true)));
+        assert_eq!(evaluate("!false"), Ok(Value::Boolean(true)));
     }
 }
