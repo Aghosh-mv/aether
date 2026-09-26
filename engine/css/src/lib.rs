@@ -25,9 +25,12 @@ pub fn parse_stylesheet(input: &str) -> Vec<Rule> {
     input
         .split('}')
         .filter_map(|chunk| chunk.split_once('{'))
-        .map(|(selector, body)| Rule {
-            selector: selector.trim().to_ascii_lowercase(),
-            declarations: parse_declarations(body),
+        .flat_map(|(selector, body)| {
+            let declarations = parse_declarations(body);
+            selector.split(',').map(move |selector| Rule {
+                selector: selector.trim().to_ascii_lowercase(),
+                declarations: declarations.clone(),
+            })
         })
         .filter(|rule| !rule.selector.is_empty())
         .collect()
@@ -163,5 +166,12 @@ mod tests {
             style_for("p", &[("id".into(), "hero".into())], &rules).display,
             Display::None
         );
+    }
+    #[test]
+    fn expands_selector_lists_and_preserves_source_order() {
+        let rules = parse_stylesheet("h1, h2 { margin: 4px; } h1 { margin: 8px; }");
+        assert_eq!(rules.len(), 3);
+        assert_eq!(style_for("h1", &[], &rules).margin, 8);
+        assert_eq!(style_for("h2", &[], &rules).margin, 4);
     }
 }
