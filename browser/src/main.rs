@@ -10,6 +10,7 @@ mod navigation;
 mod passwords;
 mod permissions;
 mod preferences;
+mod profiles;
 mod storage;
 mod tabs;
 use std::env;
