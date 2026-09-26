@@ -119,6 +119,17 @@ pub fn style_for(tag: &str, attributes: &[(String, String)], rules: &[Rule]) -> 
     result
 }
 
+pub fn inherit(parent: &Style, child: &Style) -> Style {
+    let mut result = child.clone();
+    if child.color == 0xff20252b {
+        result.color = parent.color;
+    }
+    if child.font_size == 16 {
+        result.font_size = parent.font_size;
+    }
+    result
+}
+
 fn selector_matches(selector: &str, tag: &str, attributes: &[(String, String)]) -> bool {
     let classes = attributes
         .iter()
@@ -207,5 +218,15 @@ mod tests {
         let attrs = vec![("class".into(), "notice".into())];
         assert_eq!(style_for("p", &attrs, &rules).margin, 2);
         assert_eq!(style_for("section", &[], &rules).color, 0xffabcdef);
+    }
+    #[test]
+    fn inherits_text_properties_without_inheriting_layout() {
+        let parent = parse_declarations("color:#123456; font-size:24px; margin:8px");
+        let child = parse_declarations("display:inline");
+        let computed = inherit(&parent, &child);
+        assert_eq!(computed.color, 0xff123456);
+        assert_eq!(computed.font_size, 24);
+        assert_eq!(computed.margin, 0);
+        assert_eq!(computed.display, Display::Inline);
     }
 }

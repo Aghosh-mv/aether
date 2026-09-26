@@ -18,7 +18,7 @@ pub fn paint(runs: &[TextRun], width: u32, height: u32) -> Frame {
                         let px = x + col;
                         let py = run.y + row;
                         if px < width && py < height {
-                            pixels[(py * width + px) as usize] = 0xff20252b;
+                            pixels[(py * width + px) as usize] = run.color;
                         }
                     }
                 }

@@ -1,10 +1,12 @@
-use aether_css::{style_for, Display, Rule};
+use aether_css::{inherit, style_for, Display, Rule, Style};
 use aether_dom::Node;
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TextRun {
     pub text: String,
     pub x: u32,
     pub y: u32,
+    pub color: u32,
+    pub font_size: u32,
 }
 pub fn layout(doc: &Node, width: u32) -> Vec<TextRun> {
     layout_with_styles(doc, width, &[])
@@ -12,7 +14,14 @@ pub fn layout(doc: &Node, width: u32) -> Vec<TextRun> {
 pub fn layout_with_styles(doc: &Node, width: u32, rules: &[Rule]) -> Vec<TextRun> {
     let mut out = Vec::new();
     let mut y = 24;
-    fn walk(n: &Node, out: &mut Vec<TextRun>, y: &mut u32, width: u32, rules: &[Rule]) {
+    fn walk(
+        n: &Node,
+        out: &mut Vec<TextRun>,
+        y: &mut u32,
+        width: u32,
+        rules: &[Rule],
+        parent_style: &Style,
+    ) {
         match n {
             Node::Text(s) => {
                 let max_chars = width.saturating_sub(32).max(7) / 7;
@@ -28,6 +37,8 @@ pub fn layout_with_styles(doc: &Node, width: u32, rules: &[Rule]) -> Vec<TextRun
                             text: line,
                             x: 16,
                             y: *y,
+                            color: parent_style.color,
+                            font_size: parent_style.font_size,
                         });
                         *y += 18;
                         line = word.to_string();
@@ -40,13 +51,15 @@ pub fn layout_with_styles(doc: &Node, width: u32, rules: &[Rule]) -> Vec<TextRun
                         text: line,
                         x: 16,
                         y: *y,
+                        color: parent_style.color,
+                        font_size: parent_style.font_size,
                     });
                     *y += 18;
                 }
             }
             Node::Document { children } => {
                 for child in children {
-                    walk(child, out, y, width, rules);
+                    walk(child, out, y, width, rules, parent_style);
                 }
             }
             Node::Element {
@@ -54,20 +67,21 @@ pub fn layout_with_styles(doc: &Node, width: u32, rules: &[Rule]) -> Vec<TextRun
                 attributes,
                 children,
             } => {
-                let style = style_for(tag, attributes, rules);
+                let style = inherit(parent_style, &style_for(tag, attributes, rules));
                 if style.display == Display::None {
                     return;
                 }
                 *y += style.margin;
                 for child in children {
-                    walk(child, out, y, width, rules);
+                    walk(child, out, y, width, rules, &style);
                 }
                 *y += style.margin;
             }
         }
         let _ = width;
     }
-    walk(doc, &mut out, &mut y, width, rules);
+    let default_style = style_for("", &[], &[]);
+    walk(doc, &mut out, &mut y, width, rules, &default_style);
     out
 }
 
