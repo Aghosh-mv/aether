@@ -9,6 +9,7 @@
 - [x] HTTPS request and native window path
 - [x] First CSS declarations and style-aware block layout
 - [x] DOM tag, class, and ID queries
+- [x] AetherJS lexer and arithmetic-expression evaluator seed
 
 Evidence: `docs/evidence/foundation.md`.
 

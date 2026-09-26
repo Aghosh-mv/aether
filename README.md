@@ -17,6 +17,7 @@ cargo run -p aether-browser -- https://example.com
 - `engine/html` — owned tokenizer/tree builder
 - `engine/css` — first stylesheet parser and computed style values
 - `engine/layout` — first style-aware block-text layout pass
+- `engine/javascript` — early AetherJS lexer/parser/evaluator seed
 - `engine/paint` — first CPU display surface
 - `browser` — HTTPS navigation and native window integration
 - `docs/adr` — architecture decisions
