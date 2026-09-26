@@ -8,6 +8,7 @@
 - [x] CPU paint surface
 - [x] HTTPS request and native window path
 - [x] First CSS declarations and style-aware block layout
+- [x] DOM tag, class, and ID queries
 
 Evidence: `docs/evidence/foundation.md`.
 
