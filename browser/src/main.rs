@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+// Browser-state contracts are tested independently before native UI wiring lands.
 use aether_css::parse_stylesheet;
 use aether_html::parse;
 use aether_layout::layout_with_styles;

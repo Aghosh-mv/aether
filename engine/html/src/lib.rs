@@ -8,6 +8,8 @@ enum Token {
     Text(String),
 }
 
+type OpenElement = (String, Vec<(String, String)>, Vec<Node>);
+
 fn tokenize(input: &str) -> Vec<Token> {
     let mut out = Vec::new();
     let mut rest = input;
@@ -128,7 +130,7 @@ fn parse_start_tag(raw: &str) -> (String, Vec<(String, String)>) {
 
 pub fn parse(input: &str) -> Node {
     let mut roots = Vec::new();
-    let mut stack: Vec<(String, Vec<(String, String)>, Vec<Node>)> = Vec::new();
+    let mut stack: Vec<OpenElement> = Vec::new();
     for token in tokenize(input) {
         match token {
             Token::Text(text) if !text.trim().is_empty() => {

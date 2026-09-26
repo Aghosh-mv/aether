@@ -1,0 +1,26 @@
+name: Aether CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  quality:
+    name: Rust quality gates
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+      - name: Run workspace tests
+        run: cargo test --workspace
+      - name: Run clippy
+        run: cargo clippy --workspace --all-targets -- -D warnings
+      - name: Build browser
+        run: cargo build -p aether-browser --release
+
