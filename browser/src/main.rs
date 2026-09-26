@@ -4,6 +4,7 @@ use aether_layout::layout_with_styles;
 use aether_paint::paint;
 use softbuffer::{Context, Surface};
 mod navigation;
+mod passwords;
 mod preferences;
 mod storage;
 mod tabs;
