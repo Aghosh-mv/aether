@@ -82,6 +82,15 @@ pub fn parse_declarations(input: &str) -> Style {
     style
 }
 
+fn default_style() -> Style {
+    Style {
+        color: 0xff20252b,
+        background: 0xfff7f4ed,
+        font_size: 16,
+        ..Style::default()
+    }
+}
+
 fn hex_color(value: &str) -> Option<u32> {
     let digits = value.strip_prefix('#')?;
     let expanded = if digits.len() == 3 {
@@ -98,14 +107,14 @@ fn hex_color(value: &str) -> Option<u32> {
 }
 
 pub fn style_for(tag: &str, attributes: &[(String, String)], rules: &[Rule]) -> Style {
-    let mut result = parse_declarations("");
+    let mut result = default_style();
     for rule in rules {
         if selector_matches(&rule.selector, tag, attributes) {
-            result = rule.declarations.clone();
+            apply_specified(&mut result, &rule.declarations);
         }
     }
     if let Some((_, inline)) = attributes.iter().find(|(name, _)| name == "style") {
-        result = merge(result, parse_declarations(inline));
+        apply_specified(&mut result, &parse_declarations(inline));
     }
     result
 }
@@ -120,6 +129,15 @@ fn selector_matches(selector: &str, tag: &str, attributes: &[(String, String)]) 
         .iter()
         .find(|(name, _)| name == "id")
         .map(|(_, value)| value.as_str());
+    if selector == "*" {
+        return true;
+    }
+    if let Some((wanted_tag, wanted_id)) = selector.split_once('#') {
+        return (wanted_tag.is_empty() || wanted_tag == tag) && id == Some(wanted_id);
+    }
+    if let Some((wanted_tag, wanted_class)) = selector.split_once('.') {
+        return (wanted_tag.is_empty() || wanted_tag == tag) && classes.contains(&wanted_class);
+    }
     if let Some(wanted) = selector.strip_prefix('#') {
         return id == Some(wanted);
     }
@@ -129,13 +147,22 @@ fn selector_matches(selector: &str, tag: &str, attributes: &[(String, String)]) 
     selector == tag
 }
 
-fn merge(mut base: Style, inline: Style) -> Style {
-    base.display = inline.display;
-    base.color = inline.color;
-    base.background = inline.background;
-    base.font_size = inline.font_size;
-    base.margin = inline.margin;
-    base
+fn apply_specified(base: &mut Style, incoming: &Style) {
+    if incoming.display != Display::Block {
+        base.display = incoming.display;
+    }
+    if incoming.color != 0xff20252b {
+        base.color = incoming.color;
+    }
+    if incoming.background != 0xfff7f4ed {
+        base.background = incoming.background;
+    }
+    if incoming.font_size != 16 {
+        base.font_size = incoming.font_size;
+    }
+    if incoming.margin != 0 {
+        base.margin = incoming.margin;
+    }
 }
 
 #[cfg(test)]
@@ -173,5 +200,12 @@ mod tests {
         assert_eq!(rules.len(), 3);
         assert_eq!(style_for("h1", &[], &rules).margin, 8);
         assert_eq!(style_for("h2", &[], &rules).margin, 4);
+    }
+    #[test]
+    fn matches_compound_and_universal_selectors() {
+        let rules = parse_stylesheet("p.notice { margin: 2px; } * { color: #abcdef; }");
+        let attrs = vec![("class".into(), "notice".into())];
+        assert_eq!(style_for("p", &attrs, &rules).margin, 2);
+        assert_eq!(style_for("section", &[], &rules).color, 0xffabcdef);
     }
 }

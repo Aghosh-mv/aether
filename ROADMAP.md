@@ -14,6 +14,7 @@
 - [x] Common HTML character-reference decoding
 - [x] CSS selector lists and source-order cascade
 - [x] Standard HTML void-element handling
+- [x] CSS compound and universal selectors
 - [x] AetherJS lexer and arithmetic-expression evaluator seed
 - [x] AetherJS unary operators and numeric comparisons
 - [x] AetherJS let declarations and variable lookup
