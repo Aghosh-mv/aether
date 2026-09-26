@@ -112,6 +112,7 @@ pub fn parse(input: &str) -> Node {
     for token in tokenize(input) {
         match token {
             Token::Text(text) if !text.trim().is_empty() => {
+                let text = decode_entities(&text);
                 if let Some(last) = stack.last_mut() {
                     last.2.push(Node::Text(text));
                 } else {
@@ -166,6 +167,45 @@ pub fn parse(input: &str) -> Node {
     Node::document(roots)
 }
 
+fn decode_entities(text: &str) -> String {
+    let mut result = String::with_capacity(text.len());
+    let mut rest = text;
+    while let Some(start) = rest.find('&') {
+        result.push_str(&rest[..start]);
+        let Some(end) = rest[start..].find(';') else {
+            result.push_str(&rest[start..]);
+            break;
+        };
+        let entity = &rest[start + 1..start + end];
+        let decoded = match entity {
+            "amp" => Some('&'),
+            "lt" => Some('<'),
+            "gt" => Some('>'),
+            "quot" => Some('"'),
+            "apos" => Some('\''),
+            "nbsp" => Some('\u{00a0}'),
+            value if value.starts_with("#x") => u32::from_str_radix(&value[2..], 16)
+                .ok()
+                .and_then(char::from_u32),
+            value if value.starts_with('#') => {
+                value[1..].parse::<u32>().ok().and_then(char::from_u32)
+            }
+            _ => None,
+        };
+        if let Some(character) = decoded {
+            result.push(character);
+            rest = &rest[start + end + 1..];
+        } else {
+            result.push('&');
+            rest = &rest[start + 1..];
+        }
+    }
+    if !rest.is_empty() {
+        result.push_str(rest);
+    }
+    result
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -184,5 +224,10 @@ mod tests {
         );
         let image = doc.query_selector("img").unwrap();
         assert_eq!(image.attributes()[0], ("alt".into(), "a small icon".into()));
+    }
+    #[test]
+    fn decodes_named_and_numeric_character_references() {
+        let doc = parse("<p>A &amp; B &lt; 3 &#x1F600; &#169;</p>");
+        assert_eq!(doc.text(), "A & B < 3 😀 ©");
     }
 }
