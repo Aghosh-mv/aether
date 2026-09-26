@@ -6,6 +6,7 @@ use softbuffer::{Context, Surface};
 mod navigation;
 mod preferences;
 mod storage;
+mod tabs;
 use std::env;
 use std::num::NonZeroU32;
 use winit::{

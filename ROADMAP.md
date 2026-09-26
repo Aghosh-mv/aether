@@ -20,6 +20,7 @@
 - [x] Domain/path/secure/expiry-aware cookie jar foundation
 - [x] Search-engine preferences, omnibox classification, and personalization defaults
 - [x] Reduced-motion setting boundary for browser animations
+- [x] Tested tab-strip model with active, pinned, muted, and recently-closed state
 - [x] AetherJS lexer and arithmetic-expression evaluator seed
 - [x] AetherJS unary operators and numeric comparisons
 - [x] AetherJS let declarations and variable lookup
