@@ -10,6 +10,7 @@
 - [x] First CSS declarations and style-aware block layout
 - [x] DOM tag, class, and ID queries
 - [x] DOM text replacement and child insertion primitives
+- [x] Quote-aware HTML attributes and self-closing tags
 - [x] AetherJS lexer and arithmetic-expression evaluator seed
 - [x] AetherJS unary operators and numeric comparisons
 - [x] AetherJS let declarations and variable lookup
