@@ -25,6 +25,7 @@
 - [x] Bookmark folders, duplicate prevention, removal, and search
 - [x] Download lifecycle model with progress, pause/resume, retry, cancel, and completion
 - [x] Searchable history with site removal, time-range clearing, and private-window isolation
+- [x] Per-origin permission decisions with safe Ask defaults
 - [x] AetherJS lexer and arithmetic-expression evaluator seed
 - [x] AetherJS unary operators and numeric comparisons
 - [x] AetherJS let declarations and variable lookup

@@ -8,6 +8,7 @@ mod downloads;
 mod history;
 mod navigation;
 mod passwords;
+mod permissions;
 mod preferences;
 mod storage;
 mod tabs;
