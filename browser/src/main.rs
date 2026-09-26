@@ -3,6 +3,7 @@ use aether_html::parse;
 use aether_layout::layout_with_styles;
 use aether_paint::paint;
 use softbuffer::{Context, Surface};
+mod navigation;
 use std::env;
 use std::num::NonZeroU32;
 use winit::{
