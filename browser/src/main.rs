@@ -11,6 +11,7 @@ mod passwords;
 mod permissions;
 mod preferences;
 mod profiles;
+mod pwa;
 mod session;
 mod storage;
 mod tabs;
