@@ -4,6 +4,8 @@ use aether_layout::layout_with_styles;
 use aether_paint::paint;
 use softbuffer::{Context, Surface};
 mod navigation;
+mod preferences;
+mod storage;
 use std::env;
 use std::num::NonZeroU32;
 use winit::{
