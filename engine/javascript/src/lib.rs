@@ -21,6 +21,10 @@ enum Token {
     Less,
     Greater,
     EqualEqual,
+    Ident(String),
+    Let,
+    Equal,
+    Semicolon,
     LParen,
     RParen,
     End,
@@ -90,6 +94,14 @@ fn lex(source: &str) -> Result<Vec<Token>, String> {
                 tokens.push(Token::EqualEqual);
                 i += 2
             }
+            '=' => {
+                tokens.push(Token::Equal);
+                i += 1
+            }
+            ';' => {
+                tokens.push(Token::Semicolon);
+                i += 1
+            }
             '(' => {
                 tokens.push(Token::LParen);
                 i += 1
@@ -108,7 +120,8 @@ fn lex(source: &str) -> Result<Vec<Token>, String> {
                     "true" => Token::True,
                     "false" => Token::False,
                     "null" => Token::Null,
-                    _ => return Err(format!("unexpected identifier: {word}")),
+                    "let" => Token::Let,
+                    _ => Token::Ident(word),
                 });
             }
         }
@@ -122,17 +135,15 @@ pub fn evaluate(source: &str) -> Result<Value, String> {
     let mut parser = Parser {
         tokens,
         position: 0,
+        variables: std::collections::HashMap::new(),
     };
-    let value = parser.expression()?;
-    if parser.peek() != &Token::End {
-        return Err("unexpected trailing input".into());
-    }
-    Ok(value)
+    parser.program()
 }
 
 struct Parser {
     tokens: Vec<Token>,
     position: usize,
+    variables: std::collections::HashMap<String, Value>,
 }
 impl Parser {
     fn peek(&self) -> &Token {
@@ -142,6 +153,32 @@ impl Parser {
         let token = self.tokens[self.position].clone();
         self.position += 1;
         token
+    }
+    fn program(&mut self) -> Result<Value, String> {
+        let mut result = Value::Null;
+        while self.peek() != &Token::End {
+            result = if self.peek() == &Token::Let {
+                self.take();
+                self.declaration()?
+            } else {
+                self.expression()?
+            };
+            if self.peek() == &Token::Semicolon {
+                self.take();
+            }
+        }
+        Ok(result)
+    }
+    fn declaration(&mut self) -> Result<Value, String> {
+        let Token::Ident(name) = self.take() else {
+            return Err("expected variable name after let".into());
+        };
+        if self.take() != Token::Equal {
+            return Err("expected '=' after variable name".into());
+        }
+        let value = self.expression()?;
+        self.variables.insert(name, value.clone());
+        Ok(value)
     }
     fn expression(&mut self) -> Result<Value, String> {
         let mut value = self.term()?;
@@ -198,6 +235,11 @@ impl Parser {
             Token::True => Ok(Value::Boolean(true)),
             Token::False => Ok(Value::Boolean(false)),
             Token::Null => Ok(Value::Null),
+            Token::Ident(name) => self
+                .variables
+                .get(&name)
+                .cloned()
+                .ok_or_else(|| format!("undefined variable: {name}")),
             Token::LParen => {
                 let value = self.expression()?;
                 if self.take() != Token::RParen {
@@ -268,5 +310,14 @@ mod tests {
         assert_eq!(evaluate("-4 + 5"), Ok(Value::Number(1.0)));
         assert_eq!(evaluate("3 < 4"), Ok(Value::Boolean(true)));
         assert_eq!(evaluate("!false"), Ok(Value::Boolean(true)));
+    }
+    #[test]
+    fn evaluates_variables_and_statements() {
+        assert_eq!(
+            evaluate("let answer = 6 * 7; answer"),
+            Ok(Value::Number(42.0))
+        );
+        assert!(evaluate("let = 3").is_err());
+        assert!(evaluate("missing + 1").is_err());
     }
 }
