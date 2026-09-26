@@ -5,6 +5,7 @@ use aether_paint::paint;
 use softbuffer::{Context, Surface};
 mod bookmarks;
 mod downloads;
+mod extensions;
 mod history;
 mod navigation;
 mod passwords;
