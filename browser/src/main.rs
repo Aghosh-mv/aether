@@ -3,6 +3,8 @@
 use aether_css::parse_stylesheet;
 use aether_html::parse;
 use aether_layout::layout_with_styles;
+use navigation::NavigationHistory;
+use preferences::{classify_omnibox, search_url, BrowserSettings, OmniboxTarget};
 use softbuffer::{Context, Surface};
 mod bookmarks;
 mod downloads;
@@ -46,6 +48,27 @@ struct App {
     editing_address: bool,
     html: String,
     styles: Vec<aether_css::Rule>,
+    history: NavigationHistory,
+    settings: BrowserSettings,
+}
+impl App {
+    fn navigate_to(&mut self, target: String, record_history: bool) {
+        self.html = fetch(&target)
+            .unwrap_or_else(|error| format!("<h1>Aether navigation error</h1><p>{error}</p>"));
+        self.styles = self
+            .html
+            .split("<style")
+            .skip(1)
+            .filter_map(|chunk| chunk.split_once('>'))
+            .filter_map(|(_, body)| body.split_once("</style>"))
+            .flat_map(|(body, _)| parse_stylesheet(body))
+            .collect();
+        self.address = target.clone();
+        if record_history {
+            self.history.navigate(target);
+        }
+        self.editing_address = false;
+    }
 }
 impl ApplicationHandler for App {
     fn resumed(&mut self, event_loop: &ActiveEventLoop) {
@@ -100,11 +123,13 @@ impl ApplicationHandler for App {
                 match logical_key {
                     Key::Named(NamedKey::Escape) => self.editing_address = false,
                     Key::Named(NamedKey::Enter) if self.editing_address => {
-                        let target = self.address.clone();
-                        self.html = fetch(&target).unwrap_or_else(|error| {
-                            format!("<h1>Aether navigation error</h1><p>{error}</p>")
-                        });
-                        self.editing_address = false;
+                        let target = match classify_omnibox(&self.address) {
+                            OmniboxTarget::Url(url) => url.to_string(),
+                            OmniboxTarget::Search(query) => {
+                                search_url(&self.settings.search_engine, &query)
+                            }
+                        };
+                        self.navigate_to(target, true);
                     }
                     Key::Named(NamedKey::Backspace) if self.editing_address => {
                         self.address.pop();
@@ -113,6 +138,18 @@ impl ApplicationHandler for App {
                         self.address.push_str(&character);
                     }
                     Key::Named(NamedKey::F6) => self.editing_address = true,
+                    Key::Named(NamedKey::BrowserBack) => {
+                        let target = self.history.back().map(|entry| entry.url.clone());
+                        if let Some(target) = target {
+                            self.navigate_to(target, false);
+                        }
+                    }
+                    Key::Named(NamedKey::BrowserForward) => {
+                        let target = self.history.forward().map(|entry| entry.url.clone());
+                        if let Some(target) = target {
+                            self.navigate_to(target, false);
+                        }
+                    }
                     _ => {}
                 }
                 if let Some(window) = &self.window {
@@ -140,10 +177,16 @@ fn main() {
         .unwrap()
         .run_app(&mut App {
             window: None,
-            address: url,
+            address: url.clone(),
             editing_address: false,
             html,
             styles,
+            history: {
+                let mut history = NavigationHistory::new();
+                history.navigate(url.clone());
+                history
+            },
+            settings: BrowserSettings::default(),
         })
         .unwrap();
 }
