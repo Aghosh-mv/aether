@@ -1,0 +1,8 @@
+[package]
+name = "aether-paint"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+aether-layout = { path = "../layout" }
+

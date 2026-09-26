@@ -1,0 +1,8 @@
+[package]
+name = "aether-html"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+aether-dom = { path = "../dom" }
+
