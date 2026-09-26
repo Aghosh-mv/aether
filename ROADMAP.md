@@ -22,6 +22,7 @@
 - [x] Reduced-motion setting boundary for browser animations
 - [x] Tested tab-strip model with active, pinned, muted, and recently-closed state
 - [x] Credential-vault contract with mock-only test provider
+- [x] Bookmark folders, duplicate prevention, removal, and search
 - [x] AetherJS lexer and arithmetic-expression evaluator seed
 - [x] AetherJS unary operators and numeric comparisons
 - [x] AetherJS let declarations and variable lookup

@@ -3,6 +3,7 @@ use aether_html::parse;
 use aether_layout::layout_with_styles;
 use aether_paint::paint;
 use softbuffer::{Context, Surface};
+mod bookmarks;
 mod navigation;
 mod passwords;
 mod preferences;
