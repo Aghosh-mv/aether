@@ -91,6 +91,32 @@ impl Node {
             Self::Text(_) => {}
         }
     }
+
+    pub fn set_text_content(&mut self, value: impl Into<String>) {
+        let text = Node::Text(value.into());
+        match self {
+            Self::Document { children } | Self::Element { children, .. } => {
+                children.clear();
+                children.push(text);
+            }
+            Self::Text(current) => {
+                *current = match text {
+                    Node::Text(value) => value,
+                    _ => unreachable!(),
+                }
+            }
+        }
+    }
+
+    pub fn append_child(&mut self, child: Node) -> Result<(), Node> {
+        match self {
+            Self::Document { children } | Self::Element { children, .. } => {
+                children.push(child);
+                Ok(())
+            }
+            Self::Text(_) => Err(child),
+        }
+    }
 }
 
 #[cfg(test)]
@@ -113,5 +139,25 @@ mod tests {
             Some("main")
         );
         assert_eq!(doc.query_selector(".featured").unwrap().text(), "hello");
+    }
+    #[test]
+    fn mutates_owned_tree_text_and_children() {
+        let mut root = Node::Element {
+            tag: "main".into(),
+            attributes: Vec::new(),
+            children: Vec::new(),
+        };
+        root.set_text_content("updated");
+        assert_eq!(root.text(), "updated");
+        root.append_child(Node::Element {
+            tag: "p".into(),
+            attributes: Vec::new(),
+            children: vec![Node::Text("child".into())],
+        })
+        .unwrap();
+        assert_eq!(root.query_selector("p").unwrap().text(), "child");
+        assert!(Node::Text("leaf".into())
+            .append_child(Node::Text("nope".into()))
+            .is_err());
     }
 }
