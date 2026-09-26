@@ -26,7 +26,7 @@ fn tokenize(input: &str) -> Vec<Token> {
             let self_closing = raw.ends_with('/');
             let (tag, attrs) = parse_start_tag(raw.trim_end_matches('/').trim());
             if !tag.is_empty() {
-                out.push(if self_closing {
+                out.push(if self_closing || is_void_element(&tag) {
                     Token::SelfClosing(tag, attrs)
                 } else {
                     Token::Start(tag, attrs)
@@ -39,6 +39,26 @@ fn tokenize(input: &str) -> Vec<Token> {
         out.push(Token::Text(rest.to_string()));
     }
     out
+}
+
+fn is_void_element(tag: &str) -> bool {
+    matches!(
+        tag,
+        "area"
+            | "base"
+            | "br"
+            | "col"
+            | "embed"
+            | "hr"
+            | "img"
+            | "input"
+            | "link"
+            | "meta"
+            | "param"
+            | "source"
+            | "track"
+            | "wbr"
+    )
 }
 
 fn parse_start_tag(raw: &str) -> (String, Vec<(String, String)>) {
@@ -229,5 +249,13 @@ mod tests {
     fn decodes_named_and_numeric_character_references() {
         let doc = parse("<p>A &amp; B &lt; 3 &#x1F600; &#169;</p>");
         assert_eq!(doc.text(), "A & B < 3 😀 ©");
+    }
+    #[test]
+    fn treats_standard_void_elements_as_leaf_nodes() {
+        let doc = parse("<p>before<br><img alt=icon>after</p><p>next</p>");
+        let paragraphs = doc.query_selector_all("p");
+        assert_eq!(paragraphs.len(), 2);
+        assert_eq!(paragraphs[0].text(), "beforeafter");
+        assert_eq!(doc.query_selector("img").unwrap().children().len(), 0);
     }
 }
