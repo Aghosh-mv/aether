@@ -15,15 +15,33 @@ pub fn layout_with_styles(doc: &Node, width: u32, rules: &[Rule]) -> Vec<TextRun
     fn walk(n: &Node, out: &mut Vec<TextRun>, y: &mut u32, width: u32, rules: &[Rule]) {
         match n {
             Node::Text(s) => {
-                for line in s.split_whitespace() {
-                    if !line.is_empty() {
+                let max_chars = width.saturating_sub(32).max(7) / 7;
+                let mut line = String::new();
+                for word in s.split_whitespace() {
+                    let candidate = if line.is_empty() {
+                        word.to_string()
+                    } else {
+                        format!("{line} {word}")
+                    };
+                    if candidate.chars().count() as u32 > max_chars && !line.is_empty() {
                         out.push(TextRun {
-                            text: line.to_string(),
+                            text: line,
                             x: 16,
                             y: *y,
                         });
                         *y += 18;
+                        line = word.to_string();
+                    } else {
+                        line = candidate;
                     }
+                }
+                if !line.is_empty() {
+                    out.push(TextRun {
+                        text: line,
+                        x: 16,
+                        y: *y,
+                    });
+                    *y += 18;
                 }
             }
             Node::Document { children } => {
@@ -31,8 +49,12 @@ pub fn layout_with_styles(doc: &Node, width: u32, rules: &[Rule]) -> Vec<TextRun
                     walk(child, out, y, width, rules);
                 }
             }
-            Node::Element { tag, children, .. } => {
-                let style = style_for(tag, rules);
+            Node::Element {
+                tag,
+                attributes,
+                children,
+            } => {
+                let style = style_for(tag, attributes, rules);
                 if style.display == Display::None {
                     return;
                 }
@@ -57,7 +79,14 @@ mod tests {
     fn stacks_text() {
         let doc = Node::document(vec![Node::Text("one two".into())]);
         let runs = layout(&doc, 400);
-        assert_eq!(runs.len(), 2);
+        assert_eq!(runs.len(), 1);
+        assert_eq!(runs[0].text, "one two");
+    }
+    #[test]
+    fn wraps_to_available_width() {
+        let doc = Node::document(vec![Node::Text("one two three".into())]);
+        let runs = layout(&doc, 60);
+        assert!(runs.len() > 1);
         assert!(runs[1].y > runs[0].y);
     }
 }

@@ -94,13 +94,45 @@ fn hex_color(value: &str) -> Option<u32> {
         .map(|rgb| 0xff000000 | rgb)
 }
 
-pub fn style_for<'a>(tag: &str, rules: &'a [Rule]) -> Style {
-    rules
+pub fn style_for(tag: &str, attributes: &[(String, String)], rules: &[Rule]) -> Style {
+    let mut result = parse_declarations("");
+    for rule in rules {
+        if selector_matches(&rule.selector, tag, attributes) {
+            result = rule.declarations.clone();
+        }
+    }
+    if let Some((_, inline)) = attributes.iter().find(|(name, _)| name == "style") {
+        result = merge(result, parse_declarations(inline));
+    }
+    result
+}
+
+fn selector_matches(selector: &str, tag: &str, attributes: &[(String, String)]) -> bool {
+    let classes = attributes
         .iter()
-        .filter(|rule| rule.selector == tag)
-        .map(|rule| rule.declarations.clone())
-        .last()
-        .unwrap_or_else(|| parse_declarations(""))
+        .find(|(name, _)| name == "class")
+        .map(|(_, value)| value.split_whitespace().collect::<Vec<_>>())
+        .unwrap_or_default();
+    let id = attributes
+        .iter()
+        .find(|(name, _)| name == "id")
+        .map(|(_, value)| value.as_str());
+    if let Some(wanted) = selector.strip_prefix('#') {
+        return id == Some(wanted);
+    }
+    if let Some(wanted) = selector.strip_prefix('.') {
+        return classes.contains(&wanted);
+    }
+    selector == tag
+}
+
+fn merge(mut base: Style, inline: Style) -> Style {
+    base.display = inline.display;
+    base.color = inline.color;
+    base.background = inline.background;
+    base.font_size = inline.font_size;
+    base.margin = inline.margin;
+    base
 }
 
 #[cfg(test)]
@@ -118,5 +150,18 @@ mod tests {
         let style = parse_declarations("display:none; color:#abc");
         assert_eq!(style.display, Display::None);
         assert_eq!(style.color, 0xffaabbcc);
+    }
+    #[test]
+    fn matches_id_class_and_inline_style() {
+        let rules = parse_stylesheet(".notice { margin: 4px; } #hero { display: none; }");
+        let attrs = vec![
+            ("class".into(), "notice".into()),
+            ("style".into(), "margin: 9px".into()),
+        ];
+        assert_eq!(style_for("p", &attrs, &rules).margin, 9);
+        assert_eq!(
+            style_for("p", &[("id".into(), "hero".into())], &rules).display,
+            Display::None
+        );
     }
 }
