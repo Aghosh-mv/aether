@@ -5,4 +5,4 @@ edition = "2021"
 
 [dependencies]
 aether-dom = { path = "../dom" }
-
+aether-css = { path = "../css" }

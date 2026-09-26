@@ -1,3 +1,4 @@
+use aether_css::{style_for, Display, Rule};
 use aether_dom::Node;
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TextRun {
@@ -6,9 +7,12 @@ pub struct TextRun {
     pub y: u32,
 }
 pub fn layout(doc: &Node, width: u32) -> Vec<TextRun> {
+    layout_with_styles(doc, width, &[])
+}
+pub fn layout_with_styles(doc: &Node, width: u32, rules: &[Rule]) -> Vec<TextRun> {
     let mut out = Vec::new();
     let mut y = 24;
-    fn walk(n: &Node, out: &mut Vec<TextRun>, y: &mut u32, width: u32) {
+    fn walk(n: &Node, out: &mut Vec<TextRun>, y: &mut u32, width: u32, rules: &[Rule]) {
         match n {
             Node::Text(s) => {
                 for line in s.split_whitespace() {
@@ -22,15 +26,26 @@ pub fn layout(doc: &Node, width: u32) -> Vec<TextRun> {
                     }
                 }
             }
-            Node::Document { children } | Node::Element { children, .. } => {
+            Node::Document { children } => {
                 for child in children {
-                    walk(child, out, y, width);
+                    walk(child, out, y, width, rules);
                 }
+            }
+            Node::Element { tag, children, .. } => {
+                let style = style_for(tag, rules);
+                if style.display == Display::None {
+                    return;
+                }
+                *y += style.margin;
+                for child in children {
+                    walk(child, out, y, width, rules);
+                }
+                *y += style.margin;
             }
         }
         let _ = width;
     }
-    walk(doc, &mut out, &mut y, width);
+    walk(doc, &mut out, &mut y, width, rules);
     out
 }
 

@@ -5,9 +5,9 @@ edition = "2021"
 
 [dependencies]
 aether-html = { path = "../engine/html" }
+aether-css = { path = "../engine/css" }
 aether-layout = { path = "../engine/layout" }
 aether-paint = { path = "../engine/paint" }
 ureq = { version = "3", default-features = true }
 winit = "0.30"
 softbuffer = "0.4"
-

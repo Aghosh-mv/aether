@@ -1,5 +1,6 @@
+use aether_css::parse_stylesheet;
 use aether_html::parse;
-use aether_layout::layout;
+use aether_layout::layout_with_styles;
 use aether_paint::paint;
 use softbuffer::{Context, Surface};
 use std::env;
@@ -22,6 +23,7 @@ fn fetch(url: &str) -> Result<String, String> {
 struct App {
     window: Option<std::sync::Arc<Window>>,
     html: String,
+    styles: Vec<aether_css::Rule>,
 }
 impl ApplicationHandler for App {
     fn resumed(&mut self, event_loop: &ActiveEventLoop) {
@@ -52,7 +54,7 @@ impl ApplicationHandler for App {
                     )
                     .unwrap();
                 let doc = parse(&self.html);
-                let runs = layout(&doc, size.width);
+                let runs = layout_with_styles(&doc, size.width, &self.styles);
                 let frame = paint(&runs, size.width, size.height);
                 let mut buffer = surface.buffer_mut().unwrap();
                 buffer.copy_from_slice(&frame.pixels);
@@ -68,8 +70,19 @@ fn main() {
         .unwrap_or_else(|| "https://example.com".into());
     let html = fetch(&url)
         .unwrap_or_else(|error| format!("<h1>Aether navigation error</h1><p>{error}</p>"));
+    let styles = html
+        .split("<style")
+        .skip(1)
+        .filter_map(|chunk| chunk.split_once('>'))
+        .filter_map(|(_, body)| body.split_once("</style>"))
+        .flat_map(|(body, _)| parse_stylesheet(body))
+        .collect();
     EventLoop::new()
         .unwrap()
-        .run_app(&mut App { window: None, html })
+        .run_app(&mut App {
+            window: None,
+            html,
+            styles,
+        })
         .unwrap();
 }

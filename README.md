@@ -15,9 +15,9 @@ cargo run -p aether-browser -- https://example.com
 
 - `engine/dom` — owned DOM data model
 - `engine/html` — owned tokenizer/tree builder
-- `engine/layout` — first block-text layout pass
+- `engine/css` — first stylesheet parser and computed style values
+- `engine/layout` — first style-aware block-text layout pass
 - `engine/paint` — first CPU display surface
 - `browser` — HTTPS navigation and native window integration
 - `docs/adr` — architecture decisions
 - `.summer/plans` — implementation plans
-

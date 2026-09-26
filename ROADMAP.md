@@ -7,6 +7,7 @@
 - [x] Basic block-text layout
 - [x] CPU paint surface
 - [x] HTTPS request and native window path
+- [x] First CSS declarations and style-aware block layout
 
 Evidence: `docs/evidence/foundation.md`.
 

@@ -1,7 +1,7 @@
 [package]
-name = "aether-dom"
+name = "aether-css"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-aether-css = { path = "../css" }
+

@@ -1,4 +1,3 @@
 [workspace]
 resolver = "2"
-members = ["engine/dom", "engine/html", "engine/layout", "engine/paint", "browser"]
-
+members = ["engine/dom", "engine/html", "engine/css", "engine/layout", "engine/paint", "browser"]
