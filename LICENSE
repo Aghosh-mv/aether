@@ -1,0 +1,102 @@
+AETHER RECIPROCAL SOURCE LICENSE (ARS-L) v1.0
+
+Copyright (c) 2026 Aghosh-mv
+
+IMPORTANT NOTICE
+
+This is a custom source-available license. It is not an OSI-approved Open
+Source license, and it may not provide the same rights or compatibility as
+widely used licenses such as MIT, Apache-2.0, or GPL. By using, copying,
+modifying, or distributing the Covered Work, you accept these terms.
+
+1. Definitions
+
+"Covered Work" means this repository, its source code, documentation, and
+any portion of those materials distributed with this license.
+
+"Modified Work" means a Covered Work that you change, adapt, translate,
+extend, or combine with changes that materially alter its source code or
+behavior.
+
+"You" means the person or organization exercising rights under this license.
+
+2. Grant of Rights
+
+Subject to the conditions in this license, the copyright holder grants you a
+non-exclusive, worldwide, royalty-free license to use, study, copy, run,
+modify, and create Modified Works from the Covered Work for personal,
+educational, research, internal, and commercial purposes.
+
+3. Modification Notice and Source Sharing
+
+If you create or maintain a Modified Work, you must share the source code of
+your new or changed portions with the copyright holder by sending it to:
+
+    aghoshpratheesh@gmail.com
+
+The sharing obligation applies whether or not you publish the Modified Work.
+You may keep the Modified Work private. This license does not require you to
+publish your Modified Work, release it as a public repository, or disclose
+unrelated code that is not derived from or incorporated into the Covered Work.
+
+When sharing a Modified Work, identify the project, the relevant version or
+commit, and any material dependencies needed to understand the changes. A
+reasonable delay for preparing or reviewing the source does not waive the
+obligation; sharing should occur promptly after a Modified Work is created or
+distributed.
+
+4. Distribution
+
+You may distribute the Covered Work or a Modified Work, privately or publicly,
+provided that you:
+
+  a. include this license and existing copyright notices;
+  b. clearly identify material changes and their date;
+  c. do not imply that the copyright holder endorses your changes; and
+  d. do not remove or obscure this license.
+
+Public distribution is permitted but is not required. A private Modified Work
+may remain private after its source is shared with the copyright holder under
+Section 3.
+
+5. Trademarks and Branding
+
+This license does not grant rights to use the names, logos, or trademarks of
+Aether or Aghosh-mv except as reasonably necessary to identify an unmodified
+Covered Work. You must not imply sponsorship, certification, or endorsement.
+
+6. Third-Party Materials
+
+This license does not replace or override the licenses of third-party
+dependencies, assets, or other materials identified in the repository. You
+must comply with those licenses separately.
+
+7. Disclaimer of Warranty
+
+THE COVERED WORK IS PROVIDED "AS IS" AND WITHOUT WARRANTIES OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+PARTICULAR PURPOSE, TITLE, AND NON-INFRINGEMENT. THE COPYRIGHT HOLDER IS NOT
+RESPONSIBLE FOR SECURITY, DATA LOSS, SERVICE INTERRUPTION, OR OTHER DAMAGES
+ARISING FROM USE OF THE COVERED WORK, TO THE MAXIMUM EXTENT PERMITTED BY LAW.
+
+8. Limitation of Liability
+
+TO THE MAXIMUM EXTENT PERMITTED BY LAW, THE COPYRIGHT HOLDER WILL NOT BE
+LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, CONSEQUENTIAL, OR
+PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS, DATA, OR GOODWILL, ARISING FROM THIS
+LICENSE OR THE COVERED WORK.
+
+9. Termination
+
+Your rights under this license terminate automatically if you materially
+violate its terms. Rights may be reinstated if the violation is cured within
+thirty days after written notice, or at the copyright holder's sole discretion.
+Upon termination, you must stop distributing the Covered Work and Modified
+Works, but properly granted rights to recipients who complied with this
+license are not automatically revoked.
+
+10. No Requirement to Publish
+
+Nothing in this license requires You to make a Modified Work public. The
+source-sharing requirement in Section 3 is a private notice-and-sharing
+condition and is separate from public distribution.

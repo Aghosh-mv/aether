@@ -2,6 +2,10 @@
 
 Aether is an independent browser-engine project written primarily in Rust. It is not Chromium, Electron, WebKit, Gecko, or a wrapper around another browser.
 
+## License
+
+Aether is released under the custom [Aether Reciprocal Source License](LICENSE). It requires modified source portions to be shared with `aghoshpratheesh@gmail.com`, while allowing modified works to remain private. This is a source-available custom license, not an OSI-approved Open Source license.
+
 ## Current evidence
 
 The repository currently contains the first foundation slice: a small HTML parser and DOM, block-text layout, CPU framebuffer painting, HTTPS navigation, and a native window. It is an early engineering foundation, not a daily-use browser. CSS, JavaScript, persistent storage, security isolation, media, extensions, DevTools, and real compatibility testing are not complete.
