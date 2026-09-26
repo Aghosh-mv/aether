@@ -3,7 +3,6 @@
 use aether_css::parse_stylesheet;
 use aether_html::parse;
 use aether_layout::layout_with_styles;
-use aether_paint::paint;
 use softbuffer::{Context, Surface};
 mod bookmarks;
 mod downloads;
@@ -23,8 +22,9 @@ use std::env;
 use std::num::NonZeroU32;
 use winit::{
     application::ApplicationHandler,
-    event::WindowEvent,
+    event::{ElementState, KeyEvent, WindowEvent},
     event_loop::{ActiveEventLoop, EventLoop},
+    keyboard::{Key, NamedKey},
     window::{Window, WindowId},
 };
 
@@ -42,6 +42,8 @@ fn fetch(url: &str) -> Result<String, String> {
 }
 struct App {
     window: Option<std::sync::Arc<Window>>,
+    address: String,
+    editing_address: bool,
     html: String,
     styles: Vec<aether_css::Rule>,
 }
@@ -75,10 +77,47 @@ impl ApplicationHandler for App {
                     .unwrap();
                 let doc = parse(&self.html);
                 let runs = layout_with_styles(&doc, size.width, &self.styles);
-                let frame = paint(&runs, size.width, size.height);
+                let frame = aether_paint::paint_browser_frame(
+                    &runs,
+                    size.width,
+                    size.height,
+                    &self.address,
+                    self.editing_address,
+                );
                 let mut buffer = surface.buffer_mut().unwrap();
                 buffer.copy_from_slice(&frame.pixels);
                 buffer.present().unwrap();
+            }
+            WindowEvent::KeyboardInput {
+                event:
+                    KeyEvent {
+                        logical_key,
+                        state: ElementState::Pressed,
+                        ..
+                    },
+                ..
+            } => {
+                match logical_key {
+                    Key::Named(NamedKey::Escape) => self.editing_address = false,
+                    Key::Named(NamedKey::Enter) if self.editing_address => {
+                        let target = self.address.clone();
+                        self.html = fetch(&target).unwrap_or_else(|error| {
+                            format!("<h1>Aether navigation error</h1><p>{error}</p>")
+                        });
+                        self.editing_address = false;
+                    }
+                    Key::Named(NamedKey::Backspace) if self.editing_address => {
+                        self.address.pop();
+                    }
+                    Key::Character(character) if self.editing_address => {
+                        self.address.push_str(&character);
+                    }
+                    Key::Named(NamedKey::F6) => self.editing_address = true,
+                    _ => {}
+                }
+                if let Some(window) = &self.window {
+                    window.request_redraw();
+                }
             }
             _ => {}
         }
@@ -101,6 +140,8 @@ fn main() {
         .unwrap()
         .run_app(&mut App {
             window: None,
+            address: url,
+            editing_address: false,
             html,
             styles,
         })
